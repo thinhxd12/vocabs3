@@ -1,0 +1,30 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "plugins": ["@sveltejs/opencode", "@dietrichgebert/ponytail"],
+  "default_agent": "svelte-lead",
+  "agents": {
+    "svelte-lead": {
+      "mode": "primary",
+      "prompt": "You are svelte-lead. Follow AGENTS.md strictly: delegate Drizzle schemas/queries to @db-engineer, Tailwind UI components to @ui-designer, and post-edit audits to @svelte-reviewer. You handle SvelteKit server loaders, actions, and gluing everything together.",
+      "permissions": [
+        { "action": "subagent", "resource": "*", "effect": "allow" }
+      ]
+    },
+    "db-engineer": {
+      "mode": "subagent",
+      "description": "Auto-invoke for Drizzle ORM schemas, drizzle-kit migrations, SQL queries, indexes, Neon Postgres setup, and exporting $inferSelect/$inferInsert types."
+    },
+    "ui-designer": {
+      "mode": "subagent",
+      "description": "Auto-invoke for creating or styling .svelte UI components with Tailwind CSS, responsive layouts, forms, animations, and accessibility."
+    },
+    "svelte-reviewer": {
+      "mode": "subagent",
+      "description": "Auto-invoke after any file edits to audit Svelte 5 runes, server/client import boundaries, Drizzle query safety, and TypeScript types before finishing.",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" }
+      ]
+    }
+  }
+}
