@@ -1,7 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["AGENTS.md"],
-  "plugins": ["@sveltejs/opencode", "@dietrichgebert/ponytail"],
+  "plugins": [
+    "@sveltejs/opencode",
+    "@dietrichgebert/ponytail",
+    "opencode-model-router"
+  ],
   "default_agent": "svelte-lead",
   "agents": {
     "svelte-lead": {
@@ -22,9 +26,7 @@
     "svelte-reviewer": {
       "mode": "subagent",
       "description": "Auto-invoke after any file edits to audit Svelte 5 runes, server/client import boundaries, Drizzle query safety, and TypeScript types before finishing.",
-      "permissions": [
-        { "action": "edit", "resource": "*", "effect": "deny" }
-      ]
+      "permissions": [{ "action": "edit", "resource": "*", "effect": "deny" }]
     }
   }
 }

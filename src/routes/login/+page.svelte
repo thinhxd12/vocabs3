@@ -20,18 +20,18 @@
 	<title>Sign in</title>
 </svelte:head>
 
-<div class="min-h-dvh bg-[#f2f3ee] text-[#11130f]">
-	<header class="flex items-center justify-between px-6 py-5 md:px-10">
+<div class="min-h-full text-[#11130f]">
+	<header class="flex items-center justify-between px-6 py-5">
 		<span class="text-sm font-semibold tracking-tight">svelte-neon</span>
 		<span class="text-xs text-[#5f665c]">Neon Auth</span>
 	</header>
 
 	<main
-		class="mx-auto grid max-w-5xl gap-12 px-6 pb-16 pt-10 md:grid-cols-[1.1fr_0.9fr] md:px-10 md:pt-20"
+		class="mx-auto grid max-w-5xl gap-12 px-6 pb-16 pt-10"
 	>
 		<div>
 			<h1
-				class="text-[clamp(3.5rem,8vw,6.5rem)] font-semibold leading-[0.9] tracking-[-0.05em]"
+				class="text-[3.75rem] font-semibold leading-[0.92] tracking-[-0.04em]"
 			>
 				Welcome<br />back.
 			</h1>

@@ -4,12 +4,16 @@
 		"strict": true,
 		"types": [
 			"$app/types",
-			"node"
+			"node",
+			"unplugin-icons/types/svelte"
 		]
 	},
 	"include": [
 		"src",
 		"vite.config.ts",
 		"drizzle.config.ts"
+	],
+	"exclude": [
+		"src/lib/oldcodes"
 	]
 }

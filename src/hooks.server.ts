@@ -29,7 +29,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	const response = await resolve(event);
 
-	if (isProtected || isLogin) {
+	// Radar frames are immutable and cacheable; don't force no-store on them.
+	if ((isProtected || isLogin) && event.route.id !== '/(authed)/api/radar') {
 		response.headers.set('cache-control', 'no-store');
 	}
 

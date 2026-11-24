@@ -1,4 +1,4 @@
-node_modules
+node_modules/
 
 # Output
 .output
@@ -7,6 +7,9 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
+
+# Old code kept for migration reference
+src/lib/oldcodes
 
 # OS
 .DS_Store
@@ -17,6 +20,13 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Vite
 vite.config.js.timestamp-*
