@@ -13,7 +13,7 @@
     stopCountdown,
   } from "#lib/countdown.svelte.ts";
   import RiAlarmLine from "~icons/ri/alarm-line";
-  import PhHouse from "~icons/ph/house";
+  import HomeIcon from '~icons/mdi/home';
   import MajesticonsUnlockOpenLine from "~icons/majesticons/unlock-open-line";
   import MaterialSymbolsAdjust from "~icons/material-symbols/adjust";
   import MaterialSymbolsDashboardRounded from "~icons/material-symbols/dashboard-rounded";
@@ -64,7 +64,7 @@
 
   // Two dock rows: the first three sit above the timer, the rest beside logout.
   const links = [
-    { href: "/", label: "Home", icon: PhHouse },
+    { href: "/", label: "Home", icon: HomeIcon },
     {
       href: "/dashboard",
       label: "Dashboard",

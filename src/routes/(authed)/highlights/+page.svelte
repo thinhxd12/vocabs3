@@ -8,6 +8,7 @@
   import { innerHeight, innerWidth } from "svelte/reactivity/window";
   import HighlightPage from "#lib/components/HighlightPage.svelte";
   import Modal, { modalHeader, modalTitle } from "#lib/components/Modal.svelte";
+  import StarRating from "#lib/components/StarRating.svelte";
   import { readBookInfo, writeBookInfo } from "#lib/book-info-cache.ts";
   import {
     bookInfoKey,
@@ -775,10 +776,7 @@
                     <div
                       class="mt-1 mb-2 flex items-center justify-center gap-2"
                     >
-                      <span
-                        aria-label="Rating {bookInfo.rating} out of 5"
-                        class="text-[13px] text-[#b45309]">★★★★★</span
-                      >
+                      <StarRating rating={Number(bookInfo.rating)} />
                       <span class="book-meta text-[12px]"
                         >{bookInfo.rating}</span
                       >
@@ -1525,18 +1523,19 @@
 
   .book-title {
     margin-top: 8px;
-    font-family: "Bookerly", serif;
-    font-size: 16px;
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-size: 36px;
     line-height: 1.4;
-    font-weight: 700;
+    font-weight: 400;
     color: #1e1915;
   }
 
   .book-authors {
     margin: 3px 0 6px;
-    font-family: "Bookerly", serif;
-    font-size: 12px;
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-size: 20px;
     line-height: 1.3;
+    font-weight: 400;
     color: #1e1915;
   }
 

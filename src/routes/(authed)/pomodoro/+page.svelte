@@ -2,6 +2,7 @@
   import { onMount, untrack } from "svelte";
   import { fade } from "svelte/transition";
   import { invalidateAll } from "$app/navigation";
+  import { page as kitPage } from "$app/state";
   import {
     configurePomodoro,
     localDateKey,
@@ -48,9 +49,9 @@
   };
 
   const LABELS: Record<Mode, string> = {
-    focus: "Focus",
-    shortbreak: "Short break",
-    longbreak: "Long break",
+    focus: "🍅 Time to focus!",
+    shortbreak: "🌴 Time for a short break!",
+    longbreak: "🌴 Time for a long break!",
   };
   const IMAGES: Record<Mode, string> = {
     focus: "/images/Hans Adam Weissenkircher-Helios on His Chariot.webp",
@@ -77,9 +78,13 @@
   let { data }: PageProps = $props();
 
   // Saved settings come from the dashboard row; DEFAULT_SETTINGS is the fallback.
-  const initialSettings = untrack(() => data.pomodoroSettings) ?? DEFAULT_SETTINGS;
+  const initialSettings =
+    untrack(() => data.pomodoroSettings) ?? DEFAULT_SETTINGS;
 
-  let settings = $state<TimerSettings>({ ...DEFAULT_SETTINGS, ...initialSettings });
+  let settings = $state<TimerSettings>({
+    ...DEFAULT_SETTINGS,
+    ...initialSettings,
+  });
 
   // Timing lives in the module store so the layout's worker keeps it running
   // while this page is unmounted. Settings and sound stay local to the page.
@@ -95,6 +100,7 @@
   let showReport = $state(false);
   let showHeatmap = $state(false);
   let showSettings = $state(false);
+  let loadingData = $state(false);
   let page = $state(1);
 
   let wakeOn = $state(false);
@@ -104,17 +110,20 @@
 
   const rows = $derived(data.rows);
   const perPage = 12;
-  const pageRows = $derived(rows.slice((page - 1) * perPage, page * perPage).reverse());
-  const maxTime = $derived(Math.max(1, ...rows.map((row) => row.time)));
+  const pageRows = $derived(
+    rows.slice((page - 1) * perPage, page * perPage).reverse(),
+  );
   const todayTotal = $derived(
     today ? (rows.find((row) => row.date === today)?.time ?? 0) : 0,
   );
   const totalMinutes = $derived(rows.reduce((sum, row) => sum + row.time, 0));
 
   const secondsLeft = $derived(Math.ceil(remainingMs / 1000));
-  const clock = $derived(
-    `${String(Math.floor(secondsLeft / 60)).padStart(2, "0")}:${String(secondsLeft % 60).padStart(2, "0")}`,
+  const minutesText = $derived(
+    String(Math.floor(secondsLeft / 60)).padStart(2, "0"),
   );
+  const secondsText = $derived(String(secondsLeft % 60).padStart(2, "0"));
+  const clock = $derived(`${minutesText}:${secondsText}`);
   // The number input can hold fractions/0/negatives mid-edit; Array() would throw, so clamp on read.
   const intervals = $derived(clampInt(settings.intervals, 10, 12));
 
@@ -126,8 +135,9 @@
     return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
   }
 
-  function barWidth(total: number) {
-    return Math.max(2, Math.round((total / maxTime) * 100));
+  // vocabs2 report: 4px per 6 recorded minutes, with the time label on the bar.
+  function barWidth(minutes: number) {
+    return Math.round((Math.max(0, minutes) / 6) * 4);
   }
 
   function begin() {
@@ -183,10 +193,41 @@
     }
   }
 
+  async function openDataModal(
+    kind: "report" | "heatmap",
+    trigger: HTMLButtonElement,
+  ) {
+    if (loadingData) return;
+    loadingData = true;
+    try {
+      await invalidateAll();
+      if (kitPage.error) return;
+      // Blur so dialog close cannot restore focus here and re-open it with Space.
+      trigger.blur();
+      if (kind === "report") {
+        page = 1;
+        showReport = true;
+      } else {
+        showHeatmap = true;
+      }
+    } catch {
+      // Refresh aborted; leave the current page state alone.
+    } finally {
+      loadingData = false;
+    }
+  }
+
   function playChime(endedMode: Mode) {
     const el = audioEl;
     if (!el || settings.muted) return;
-    el.src = TRACKS[endedMode];
+    // The chime announces the session about to start, not the one that ended.
+    const nextMode: Mode =
+      endedMode === "focus"
+        ? interval >= intervals
+          ? "longbreak"
+          : "shortbreak"
+        : "focus";
+    el.src = TRACKS[nextMode];
     el.play().catch(() => {});
   }
 
@@ -244,7 +285,8 @@
     const stopHandler = setPomodoroCompletionHandler((completed, minutes) => {
       // A session can cross midnight; refresh so today's total/highlight stay right.
       today = localDateKey();
-      void logMinutes(minutes);
+      // Only focus time counts; break sessions must not be logged.
+      if (completed === "focus") void logMinutes(minutes);
       // Old vocabs1 only plays ambient audio when a session ends and the mode changes.
       playChime(completed);
     });
@@ -257,7 +299,19 @@
 
   $effect(() => {
     const { focus, shortbreak, longbreak, intervals } = settings;
-    untrack(() => configurePomodoro({ focus, shortbreak, longbreak, intervals }));
+    untrack(() =>
+      configurePomodoro({ focus, shortbreak, longbreak, intervals }),
+    );
+  });
+
+  // Covers Escape/backdrop closes too, not just the settings X button.
+  $effect(() => {
+    if (showSettings) return;
+    pomodoro.interval = clampInt(
+      pomodoro.interval,
+      1,
+      clampInt(settings.intervals, 10, 12),
+    );
   });
 
   let lastSaved = untrack(() => JSON.stringify(settings));
@@ -270,11 +324,10 @@
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => void persistSettings(settings), 600);
   });
-
 </script>
 
 <svelte:head>
-  <title>{clock} · {LABELS[mode]}</title>
+  <title>{clock} {LABELS[mode]}</title>
 </svelte:head>
 
 <svelte:window onkeydown={onKeyDown} />
@@ -333,13 +386,8 @@
         type="button"
         class={chip}
         aria-label="Open report"
-        onclick={(event) => {
-          // Blur so dialog close cannot restore focus here and re-open it with Space.
-          event.currentTarget.blur();
-          page = 1;
-          showReport = true;
-          void invalidateAll().catch(() => {});
-        }}
+        disabled={loadingData}
+        onclick={(event) => void openDataModal("report", event.currentTarget)}
       >
         <MaterialSymbolsInsertChartOutlineRounded width="14" height="14" />
       </button>
@@ -347,11 +395,8 @@
         type="button"
         class={chip}
         aria-label="Open heatmap"
-        onclick={(event) => {
-          event.currentTarget.blur();
-          showHeatmap = true;
-          void invalidateAll().catch(() => {});
-        }}
+        disabled={loadingData}
+        onclick={(event) => void openDataModal("heatmap", event.currentTarget)}
       >
         <MaterialSymbolsBackgroundGridSmallSharp width="14" height="14" />
       </button>
@@ -416,20 +461,22 @@
             {isRunning ? "Pause" : "Play"}
           </span>
           <span
-            class="text-[56px] leading-none font-light tracking-tight tabular-nums transition-opacity"
-            style="opacity: {isRunning ? 1 : 0.8};"
+            class="grid grid-cols-[3ch_auto_3ch] text-[69px] leading-none font-light tracking-tight tabular-nums transition-opacity"
+            style="opacity: {isRunning ? 1 : 0.7};"
           >
-            {clock}
+            <span class="text-right mr-[9px]">{minutesText}</span>
+            <span>:</span>
+            <span class="text-left ml-[9px]">{secondsText}</span>
+          </span>
+          <span
+            class="mt-2 text-[10px] leading-none"
+          >
+            Today {formatMinutes(todayTotal)}
           </span>
         </button>
       </div>
     </Circle>
 
-    <p
-      class="absolute inset-x-0 top-full mt-3 text-center text-[11px] text-black"
-    >
-      Today {formatMinutes(todayTotal)} · All time {formatMinutes(totalMinutes)}
-    </p>
   </div>
 
   {#if logError}
@@ -466,7 +513,6 @@
           >
             <th class="w-24">Date</th>
             <th>Time</th>
-            <th class="w-12 text-right">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -475,13 +521,21 @@
               <td class="whitespace-nowrap tabular-nums">{row.date}</td>
               <td class="pr-2">
                 <div
-                  class="h-3.5 rounded-[2px] {row.date === today
-                    ? 'bg-[#22c55e]'
-                    : 'bg-[#22c55e]/30'}"
-                  style="width: {barWidth(row.time)}%"
-                ></div>
+                  class="relative h-[18px] max-w-full rounded-[2px] {row.date ===
+                  today
+                    ? 'bg-blue-400'
+                    : 'bg-blue-200'}"
+                  style="width: {barWidth(row.time)}px"
+                >
+                  <span
+                    class="absolute {row.time <= 60
+                      ? 'left-1.5 text-left'
+                      : 'right-1.5 text-right'} min-w-9 text-[10px] leading-[18px] text-[#11130f]/80 tabular-nums"
+                  >
+                    {formatMinutes(row.time)}
+                  </span>
+                </div>
               </td>
-              <td class="text-right tabular-nums">{formatMinutes(row.time)}</td>
             </tr>
           {/each}
         </tbody>
@@ -570,6 +624,18 @@
         min="1"
         max="12"
         bind:value={settings.intervals}
+        class={input}
+      />
+
+      <label for="set-current-interval" class="col-span-2">
+        Current interval
+      </label>
+      <input
+        id="set-current-interval"
+        type="number"
+        min="1"
+        max={intervals}
+        bind:value={pomodoro.interval}
         class={input}
       />
 

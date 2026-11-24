@@ -10,6 +10,7 @@
 
   type Day = { date: string; month: number; day: number; time: number };
 
+  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MONTHS = [
     "January",
     "February",
@@ -144,7 +145,7 @@
             <button
               type="button"
               tabindex="-1"
-              title="{day.date} · {formatHours(day.time)}"
+              title="{DAYS[new Date(year, day.month, day.day).getDay()]}, {day.date}, {formatHours(day.time)}"
               class="size-[10px] rounded-[2px] border border-[#1f23280d] p-0 hover:border-black {LEVELS[
                 level(day.time)
               ]}"
@@ -166,15 +167,16 @@
 
   {#if shown}
     <div
-      class="flex items-center gap-4 rounded-[4px] border border-[#7ee2b8] bg-white px-4 py-3"
+      class="mt-auto flex items-center gap-2 rounded-[2px] bg-black/5 px-2 py-1 text-[11px]"
     >
-      <span class="text-[40px] leading-none font-semibold text-[#0b7a4b]"
-        >{shown.day}</span
-      >
-      <div>
-        <p class="text-[17px] leading-tight font-semibold">{shown.date}</p>
-        <p class="text-[11px] text-[#6b7280]">{formatHours(shown.time)}</p>
-      </div>
+      <span class="size-2 rounded-[2px] {LEVELS[level(shown.time)]}"></span>
+      <span class="font-medium tabular-nums">
+        {DAYS[new Date(year, shown.month, shown.day).getDay()]}, {MONTHS[
+          shown.month
+        ].slice(0, 3)} {shown.day}
+      </span>
+      <span class="text-[#4b5563]">·</span>
+      <span class="text-[#4b5563]">{formatHours(shown.time)} focused</span>
     </div>
   {/if}
 </div>

@@ -1,0 +1,10 @@
+{
+  "activePreset": "free",
+  "presets": {
+    "free": {
+      "fast": { "model": "opencode/big-pickle" },
+      "medium": { "model": "opencode/big-pickle" },
+      "heavy": { "model": "opencode/big-pickle" }
+    }
+  }
+}
