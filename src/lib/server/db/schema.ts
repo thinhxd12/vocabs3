@@ -1,4 +1,4 @@
-import { pgTable, integer, date, text, uuid, jsonb, timestamp, bigint, doublePrecision } from 'drizzle-orm/pg-core';
+import { pgTable, integer, date, text, uuid, jsonb, timestamp, bigint, bigserial, doublePrecision, index } from 'drizzle-orm/pg-core';
 
 export const pomodoro = pgTable('pomodoro', {
 	date: date('date').primaryKey(),
@@ -70,3 +70,17 @@ export const fsrs = pgTable('fsrs', {
 	lastReview: bigint('last_review', { mode: 'number' }).notNull(),
 	due: bigint('due', { mode: 'number' }).notNull()
 });
+
+export const dictionary = pgTable('dictionary', {
+	id: bigserial('id', { mode: 'number' }).primaryKey(),
+	word: text('word').notNull(),
+	definition: text('definition').notNull(),
+	pos: text('pos'),
+	subPos: text('sub_pos'),
+	example: text('example'),
+	source: text('source'),
+	links: text('links')
+}, (t) => [index('dictionary_word_idx').on(t.word)]);
+
+export type DictionaryRow = typeof dictionary.$inferSelect;
+export type DictionaryInsert = typeof dictionary.$inferInsert;
