@@ -53,7 +53,9 @@
 
 <svelte:window onkeydown={onKeyDown} />
 
-<div class="relative flex h-[calc(100vh-42px)] w-full flex-col items-center gap-0! lg:flex-row lg:items-stretch">
+<div
+  class="relative flex h-[calc(100vh-42px)] w-full flex-col items-center gap-0! lg:flex-row lg:items-stretch"
+>
   <!-- The wall: the painting lit by a blurred copy of itself. -->
   <section
     class="relative isolate flex min-h-full w-full shrink-0 items-center justify-center overflow-hidden bg-[#19191c] lg:h-full lg:flex-1"
@@ -137,7 +139,9 @@
         >
           {art.image.title}
         </h1>
-        <p class="mt-[8px] text-[14px] leading-[24px] text-slate-400">{art.image.attr}</p>
+        <p class="mt-[8px] text-[14px] leading-[24px] text-slate-400">
+          {art.image.attr}
+        </p>
       </header>
 
       <div class="flex items-center gap-[6px]">
@@ -150,11 +154,15 @@
           <p class="truncate text-[14px] font-medium text-white">
             {art.image.author}
           </p>
-          <p class="mt-[2px] text-[12px] text-slate-400">{art.image.authorYears}</p>
+          <p class="mt-[2px] text-[12px] text-slate-400">
+            {art.image.authorYears}
+          </p>
         </div>
       </div>
 
-      <div class="space-y-[4px] text-[15px] leading-[22px] text-slate-300 *:indent-[36px]">
+      <div
+        class="font-sans space-y-[4px] text-[14px] leading-[20px] text-slate-300 *:indent-[36px]"
+      >
         {#each art.image.content as paragraph, index (index)}
           <p>{paragraph}</p>
         {/each}

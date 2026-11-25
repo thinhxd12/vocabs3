@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { invalidateAll } from "$app/navigation";
+  import { invalidate, invalidateAll } from "$app/navigation";
   import { applyAction, enhance, type SubmitFunction } from "$app/forms";
   import { onDestroy } from "svelte";
   import Circle from "#lib/components/Circle.svelte";
@@ -243,7 +243,7 @@
           reviewProgress.learned = 0;
           reviewProgress.total = 0;
           void new Audio("/audio/mp3_Ding.mp3").play().catch(() => {});
-          void invalidateAll().catch(() => {});
+          void invalidate("app:fsrs-completions").catch(() => {});
         }
       } finally {
         ratingPending = false;
@@ -387,7 +387,7 @@
                     {#each translations as item (item.partOfSpeech)}
                       <div>
                         <h3
-                          class="indent-3 text-[13px] font-bold italic text-white"
+                          class="indent-2 text-[15px] font-bold text-white mb-1"
                         >
                           {item.partOfSpeech}
                         </h3>
@@ -493,14 +493,14 @@
   </div>
 
   <div
-    class="absolute inset-x-0 bottom-[42px] z-10 mx-auto w-full max-w-[382px]"
+    class="absolute inset-x-0 bottom-[44px] z-10 mx-auto w-full max-w-[382px]"
   >
     <form
       method="POST"
       action="?/rateWord"
       use:enhance={submitRating}
       bind:this={ratingForm}
-      class="grid grid-cols-4"
+      class="grid grid-cols-4 gap-[2px]"
     >
       <input type="hidden" name="id" value={current?.id ?? ""} />
       {#each ratings as rating (rating.value)}

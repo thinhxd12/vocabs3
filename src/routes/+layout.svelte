@@ -13,7 +13,7 @@
     stopCountdown,
   } from "#lib/countdown.svelte.ts";
   import RiAlarmLine from "~icons/ri/alarm-line";
-  import HomeIcon from '~icons/mdi/home';
+  import HomeIcon from "~icons/mdi/home";
   import MajesticonsUnlockOpenLine from "~icons/majesticons/unlock-open-line";
   import MaterialSymbolsAdjust from "~icons/material-symbols/adjust";
   import MaterialSymbolsDashboardRounded from "~icons/material-symbols/dashboard-rounded";
@@ -96,6 +96,10 @@
     String(Math.floor(data.totalWords / 100)).padStart(2, "0"),
     String(data.totalWords % 100).padStart(2, "0"),
   ]);
+  const batchGoal = 18; // Matches the completion threshold in fsrs/+page.server.ts.
+  const batchProgress = $derived(
+    Math.min(100, (data.completedBatches / batchGoal) * 100),
+  );
   const reviewPercent = $derived(
     reviewProgress.total === 0
       ? 0
@@ -289,151 +293,167 @@
     </div>
 
     {#if !isLogin}
-    <div
-      class="dark shrink-0 border-t border-white/10 mx-auto w-full max-w-[382px]"
-    >
-      <nav aria-label="Main" class="mx-auto flex h-[42px] w-[381px] max-w-full">
-        <div
-          role="status"
-          title={`${data.completedBatches} FSRS batches completed today`}
-          class="relative flex h-full shrink-0 flex-col items-center justify-center leading-none"
+      <div
+        class="dark shrink-0 border-t border-white/10 mx-auto w-full max-w-[382px]"
+      >
+        <nav
+          aria-label="Main"
+          class="mx-auto flex h-[42px] w-[381px] max-w-full"
         >
-          <span
-            class="w-full h-[28px] w-[16px] bg-black text-center text-[10px] leading-[28px] font-semibold tabular-nums text-white"
-          >
-            {data.completedBatches}
-          </span>
-          <span
-            class="light h-[14px] w-[16px] text-center text-[8px] leading-[14px] font-bold tracking-[0.08em] text-black"
-          >
-            {data.weekday}
-          </span>
-          {#if page.url.pathname !== "/login"}
-            <a
-              href="/calendar"
-              aria-label={`View calendar, ${data.completedBatches} FSRS batches completed today, ${data.weekday}`}
-              aria-current={page.url.pathname === "/calendar"
-                ? "page"
-                : undefined}
-              class="absolute inset-0 transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
-            ></a>
-          {/if}
-        </div>
-
-        <div class="flex min-w-0 flex-1 flex-col">
           <div
-            class="flex min-h-0 flex-1 items-center justify-center gap-[2px]"
+            role="status"
+            title={`${data.completedBatches} FSRS batches completed today`}
+            class="relative flex h-full shrink-0 flex-col items-center justify-center leading-none"
           >
-            {#each links.slice(0, 3) as link (link.href)}
-              {@render navLink(link)}
-            {/each}
-            {#if page.url.pathname !== "/login"}
-              <button
-                type="button"
-                onclick={countdown.endAt ? stopCountdown : startCountdown}
-                title={countdownLabel}
-                aria-label={countdownLabel}
-                class="flex h-full cursor-pointer shrink-0 items-center justify-center tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white {countdown.endAt
-                  ? 'min-w-[40px] rounded-[2px] bg-black px-[3px] text-[10px] leading-none font-normal text-white'
-                  : 'w-[22px] text-white opacity-50 hover:opacity-100'}"
+            <span
+              class="dark relative block h-[28px] w-[16px] overflow-hidden text-[10px] font-semibold tabular-nums text-black"
+            >
+              <span class="absolute inset-0 flex items-center justify-center">
+                {data.completedBatches}
+              </span>
+              <span
+                aria-hidden="true"
+                class="absolute inset-x-0 bottom-0 overflow-hidden bg-black"
+                style:height={`${batchProgress}%`}
               >
-                {#if countdown.endAt}
-                  <span aria-hidden="true">{countdownClock}</span>
-                {:else}
-                  <RiAlarmLine class="size-[14px]" aria-hidden="true" />
-                {/if}
-              </button>
+                <span
+                  class="absolute bottom-0 left-0 flex h-[28px] w-[16px] items-center justify-center text-white"
+                >
+                  {data.completedBatches}
+                </span>
+              </span>
+            </span>
+            <span
+              class="light flex h-[14px] w-[16px] items-center justify-center text-[8px] leading-none font-bold tracking-[0.08em] text-black"
+            >
+              {data.weekday}
+            </span>
+            {#if page.url.pathname !== "/login"}
+              <a
+                href="/calendar"
+                aria-label={`View calendar, ${data.completedBatches} FSRS batches completed today, ${data.weekday}`}
+                aria-current={page.url.pathname === "/calendar"
+                  ? "page"
+                  : undefined}
+                class="absolute inset-0 transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
+              ></a>
             {/if}
           </div>
 
-          <div
-            class="flex min-h-0 flex-1 items-center justify-center gap-[2px]"
-          >
-            {#each links.slice(3) as link (link.href)}
-              {@render navLink(link)}
-            {/each}
-
-            <form method="POST" action="/logout" class="contents">
-              <button
-                type="submit"
-                title="Sign out"
-                aria-label="Sign out"
-                class="flex h-full w-[22px] shrink-0 cursor-pointer items-center justify-center text-white opacity-50 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
-              >
-                <MajesticonsUnlockOpenLine
-                  class="size-[14px]"
-                  aria-hidden="true"
-                />
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <!-- Total FSRS words, the old dock's two-line readout. A readout, not a link. -->
-        <div
-          title="{data.totalWords} FSRS words"
-          class="flex px-[2px] rounded-[2px] shrink-0 flex-col overflow-hidden border border-white/10 bg-black/80 font-tupa font-semibold text-white"
-        >
-          <span class="sr-only">{data.totalWords} FSRS words</span>
-          <span
-            class="flex min-h-0 flex-1 text-[18px] leading-[21px] items-center justify-center"
-            aria-hidden="true"
-          >
-            {wordLines[0]}
-          </span>
-          <span
-            class="flex min-h-0 flex-1 text-[18px] leading-[20px] items-center justify-center"
-            aria-hidden="true"
-          >
-            {wordLines[1]}
-          </span>
-        </div>
-
-        {#if page.url.pathname !== "/login"}
-          <WeatherTile />
-        {/if}
-
-        <!-- Sunrise tile: grey at rest, coloured from the left as /fsrs advances. -->
-        <div
-          class="relative h-full w-[90px] shrink-0 overflow-hidden border-l border-white/10 bg-slate-900"
-        >
-          {#if isFsrs}
-            <img
-              src="/images/sunrise.webp"
-              alt=""
-              aria-hidden="true"
-              class="absolute inset-0 size-full object-cover object-left grayscale"
-            />
+          <div class="flex min-w-0 flex-1 flex-col">
             <div
-              role="progressbar"
-              aria-label="FSRS batch progress"
-              aria-valuemin="0"
-              aria-valuemax={reviewProgress.total}
-              aria-valuenow={reviewProgress.learned}
-              aria-valuetext="{reviewProgress.learned} of {reviewProgress.total} cards reviewed"
-              class="absolute inset-0"
+              class="flex min-h-0 flex-1 items-center justify-center gap-[2px]"
             >
-              {#if reviewPercent > 0}
-                <img
-                  src="/images/sunrise.webp"
-                  alt=""
-                  aria-hidden="true"
-                  class="absolute top-0 left-0 h-full object-cover object-left transition-[width] duration-300 ease-out motion-reduce:transition-none"
-                  style="box-shadow: rgba(0, 0, 0, 0.8) 1px 0px 2px; width: {reviewPercent}%"
-                />
+              {#each links.slice(0, 3) as link (link.href)}
+                {@render navLink(link)}
+              {/each}
+              {#if page.url.pathname !== "/login"}
+                <button
+                  type="button"
+                  onclick={countdown.endAt ? stopCountdown : startCountdown}
+                  title={countdownLabel}
+                  aria-label={countdownLabel}
+                  class="flex h-full cursor-pointer shrink-0 items-center justify-center tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white {countdown.endAt
+                    ? 'min-w-[40px] rounded-[2px] bg-black px-[3px] text-[10px] leading-none font-normal text-white'
+                    : 'w-[22px] text-white opacity-50 hover:opacity-100'}"
+                >
+                  {#if countdown.endAt}
+                    <span aria-hidden="true">{countdownClock}</span>
+                  {:else}
+                    <RiAlarmLine class="size-[14px]" aria-hidden="true" />
+                  {/if}
+                </button>
               {/if}
             </div>
-          {:else}
-            <img
-              src="/images/sunset.webp"
-              alt=""
+
+            <div
+              class="flex min-h-0 flex-1 items-center justify-center gap-[2px]"
+            >
+              {#each links.slice(3) as link (link.href)}
+                {@render navLink(link)}
+              {/each}
+
+              <form method="POST" action="/logout" class="contents">
+                <button
+                  type="submit"
+                  title="Sign out"
+                  aria-label="Sign out"
+                  class="flex h-full w-[22px] shrink-0 cursor-pointer items-center justify-center text-white opacity-50 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
+                >
+                  <MajesticonsUnlockOpenLine
+                    class="size-[14px]"
+                    aria-hidden="true"
+                  />
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Total FSRS words, the old dock's two-line readout. A readout, not a link. -->
+          <div
+            title="{data.totalWords} FSRS words"
+            class="flex px-[2px] rounded-[2px] shrink-0 flex-col overflow-hidden border border-white/10 bg-black/80 font-tupa font-semibold text-white"
+          >
+            <span class="sr-only">{data.totalWords} FSRS words</span>
+            <span
+              class="flex min-h-0 flex-1 text-[18px] leading-[21px] items-center justify-center"
               aria-hidden="true"
-              class="absolute inset-0 size-full object-cover object-left"
-            />
+            >
+              {wordLines[0]}
+            </span>
+            <span
+              class="flex min-h-0 flex-1 text-[18px] leading-[20px] items-center justify-center"
+              aria-hidden="true"
+            >
+              {wordLines[1]}
+            </span>
+          </div>
+
+          {#if !isLogin}
+            <WeatherTile />
           {/if}
-        </div>
-      </nav>
-    </div>
+
+          <!-- Sunrise tile: grey at rest, coloured from the left as /fsrs advances. -->
+          <div
+            class="relative h-full w-[90px] shrink-0 overflow-hidden border-l border-white/10 bg-slate-900"
+          >
+            {#if isFsrs}
+              <img
+                src="/images/sunrise.webp"
+                alt=""
+                aria-hidden="true"
+                class="absolute inset-0 size-full object-cover object-left grayscale"
+              />
+              <div
+                role="progressbar"
+                aria-label="FSRS batch progress"
+                aria-valuemin="0"
+                aria-valuemax={reviewProgress.total}
+                aria-valuenow={reviewProgress.learned}
+                aria-valuetext="{reviewProgress.learned} of {reviewProgress.total} cards reviewed"
+                class="absolute inset-0"
+              >
+                {#if reviewPercent > 0}
+                  <img
+                    src="/images/sunrise.webp"
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute top-0 left-0 h-full object-cover object-left transition-[width] duration-300 ease-out motion-reduce:transition-none"
+                    style="box-shadow: rgba(0, 0, 0, 0.8) 1px 0px 2px; width: {reviewPercent}%"
+                  />
+                {/if}
+              </div>
+            {:else}
+              <img
+                src="/images/sunset.webp"
+                alt=""
+                aria-hidden="true"
+                class="absolute inset-0 size-full object-cover object-left"
+              />
+            {/if}
+          </div>
+        </nav>
+      </div>
     {/if}
   </div>
 </div>

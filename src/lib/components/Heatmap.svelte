@@ -117,7 +117,7 @@
         <TablerChevronRight width="16" height="16" />
       </button>
     </div>
-    <p class="text-[11px]">{formatHours(totalMinutes)} focused</p>
+    <p class="text-[11px]">focus {formatHours(totalMinutes)} this year</p>
   </div>
 
   <div class="-mx-2 flex flex-col gap-[2px]">
@@ -145,7 +145,9 @@
             <button
               type="button"
               tabindex="-1"
-              title="{DAYS[new Date(year, day.month, day.day).getDay()]}, {day.date}, {formatHours(day.time)}"
+              title="{DAYS[
+                new Date(year, day.month, day.day).getDay()
+              ]}, {day.date}, {formatHours(day.time)}"
               class="size-[10px] rounded-[2px] border border-[#1f23280d] p-0 hover:border-black {LEVELS[
                 level(day.time)
               ]}"
@@ -173,7 +175,8 @@
       <span class="font-medium tabular-nums">
         {DAYS[new Date(year, shown.month, shown.day).getDay()]}, {MONTHS[
           shown.month
-        ].slice(0, 3)} {shown.day}
+        ].slice(0, 3)}
+        {shown.day}
       </span>
       <span class="text-[#4b5563]">·</span>
       <span class="text-[#4b5563]">{formatHours(shown.time)} focused</span>
