@@ -20,49 +20,33 @@
 	<title>Sign in</title>
 </svelte:head>
 
-<div class="min-h-full text-[#11130f]">
-	<header class="flex items-center justify-between px-6 py-5">
-		<span class="text-sm font-semibold tracking-tight">svelte-neon</span>
-		<span class="text-xs text-[#5f665c]">Neon Auth</span>
-	</header>
+<div class="flex min-h-full items-center justify-center px-6 py-10">
+	<main class="light w-full max-w-sm px-7 py-9 text-[#11130f] sm:px-9 sm:py-10">
+		<h1 class="text-[3.75rem] font-semibold leading-[0.92] tracking-[-0.04em]">
+			Welcome<br />back.
+		</h1>
 
-	<main
-		class="mx-auto grid max-w-5xl gap-12 px-6 pb-16 pt-10"
-	>
-		<div>
-			<h1
-				class="text-[3.75rem] font-semibold leading-[0.92] tracking-[-0.04em]"
+		<form method="POST" class="mt-10 w-full">
+			<label for="password" class="block text-sm font-medium">Password</label>
+			<input
+				id="password"
+				name="password"
+				type="password"
+				autocomplete="current-password"
+				required
+				class="mt-1 w-full min-w-0 border-b border-[#c9cec3] bg-transparent py-2.5 outline-none focus:border-green-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2547ff]"
+			/>
+
+			{#if form?.error}
+				<p role="alert" class="mt-5 text-sm text-[#b42318]">{form.error}</p>
+			{/if}
+
+			<button
+				type="submit"
+				class="mt-8 w-full rounded-none bg-[#11130f] py-3 font-medium text-white transition-opacity hover:opacity-90"
 			>
-				Welcome<br />back.
-			</h1>
-			<p class="mt-8 max-w-[34ch] text-sm leading-relaxed text-[#5f665c]">
-				Enter your password to continue.
-			</p>
-		</div>
-
-		<div class="flex flex-col justify-end">
-			<form method="POST" class="w-full max-w-sm self-end">
-				<label for="password" class="block text-sm font-medium">Password</label>
-				<input
-					id="password"
-					name="password"
-					type="password"
-					autocomplete="current-password"
-					required
-					class="mt-1 w-full min-w-0 border-b border-[#c9cec3] bg-transparent py-2.5 outline-none focus:border-[#2547ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2547ff]"
-				/>
-
-				{#if form?.error}
-					<p role="alert" class="mt-5 text-sm text-[#b42318]">{form.error}</p>
-				{/if}
-
-				<button
-					type="submit"
-					class="mt-8 w-full rounded-none bg-[#11130f] py-3 font-medium text-white transition-opacity hover:opacity-90"
-				>
-					Sign in
-				</button>
-			</form>
-		</div>
+				Sign in
+			</button>
+		</form>
 	</main>
 </div>

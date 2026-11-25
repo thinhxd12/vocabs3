@@ -82,6 +82,7 @@
   const isHighlights = $derived(page.url.pathname === "/highlights");
   const isFsrs = $derived(page.url.pathname === "/fsrs");
   const isArt = $derived(page.url.pathname === "/art");
+  const isLogin = $derived(page.url.pathname === "/login");
   const countdownClock = $derived(
     `${String(Math.floor(countdown.secondsRemaining / 60)).padStart(2, "0")}:${String(countdown.secondsRemaining % 60).padStart(2, "0")}`,
   );
@@ -216,10 +217,12 @@
     aria-hidden="true"
     fetchpriority="high"
     decoding="async"
-    class="pointer-events-none fixed inset-0 h-full w-full object-cover select-none"
+    class="pointer-events-none fixed inset-0 h-full w-full object-cover select-none {isLogin
+      ? 'blur-[6px] scale-[1.08]'
+      : ''}"
   />
 
-  {#if !isArt}
+  {#if !isArt && !isLogin}
     <div
       class="pointer-events-none fixed top-0 left-0.75 z-20 hidden max-w-1/3 text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.9),0_2px_10px_rgba(0,0,0,0.6)] md:block"
     >
@@ -264,7 +267,7 @@
   <div
     class="relative z-10 flex h-dvh w-full {isHighlights || isArt
       ? 'max-w-none'
-      : 'max-w-[382px]'} flex-col overflow-hidden"
+      : 'max-w-[382px]'} flex-col overflow-hidden outline-none"
   >
     <!-- svelte-ignore a11y_no_noninteractive_tabindex (axe scrollable-region-focusable: keyboard scrolling) -->
     <div
@@ -285,6 +288,7 @@
       {@render children()}
     </div>
 
+    {#if !isLogin}
     <div
       class="dark shrink-0 border-t border-white/10 mx-auto w-full max-w-[382px]"
     >
@@ -430,5 +434,6 @@
         </div>
       </nav>
     </div>
+    {/if}
   </div>
 </div>

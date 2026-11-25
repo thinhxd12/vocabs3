@@ -25,7 +25,6 @@
   import { paginate } from "#lib/paginate.ts";
   import IconBookmarkSimple from "~icons/ph/bookmark-simple";
   import IconCheck from "~icons/ph/check";
-  import IconSpinner from "~icons/svg-spinners/ring-resize";
   import IconX from "~icons/ph/x";
   import MaterialSymbolsTranslateRounded from "~icons/material-symbols/translate-rounded";
   import MaterialSymbolsContentCopyOutlineRounded from "~icons/material-symbols/content-copy-outline-rounded";
@@ -972,15 +971,6 @@
           {/if}
         </button>
       </div>
-
-      {#if busy}
-        <div
-          class="pointer-events-none absolute inset-0 flex items-center justify-center"
-        >
-          <IconSpinner class="size-6 text-emerald-300" aria-hidden="true" />
-          <span class="sr-only">Loading highlight</span>
-        </div>
-      {/if}
     </div>
 
     <!-- Sticky note, clipped to a tab until pulled out. -->

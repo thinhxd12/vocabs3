@@ -500,7 +500,7 @@
       action="?/rateWord"
       use:enhance={submitRating}
       bind:this={ratingForm}
-      class="grid grid-cols-4 gap-[3px] rounded-[3px] p-[3px]"
+      class="grid grid-cols-4"
     >
       <input type="hidden" name="id" value={current?.id ?? ""} />
       {#each ratings as rating (rating.value)}
