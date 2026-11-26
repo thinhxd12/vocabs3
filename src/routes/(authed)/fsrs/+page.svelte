@@ -387,7 +387,7 @@
                     {#each translations as item (item.partOfSpeech)}
                       <div>
                         <h3
-                          class="indent-2 text-[15px] font-bold text-white mb-1"
+                          class="indent-2 text-[15px] font-bold text-white italic"
                         >
                           {item.partOfSpeech}
                         </h3>

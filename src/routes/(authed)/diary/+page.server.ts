@@ -58,7 +58,9 @@ export const actions: Actions = {
 			return fail(400, { ...state, error: 'Pick a valid date.' });
 		}
 
-		const today = isoDate(new Date());
+		// The browser's day is authoritative near midnight; the server clock is the fallback.
+		const clientToday = String(form.get('today') ?? '').trim();
+		const today = ISO_DATE.test(clientToday) ? clientToday : isoDate(new Date());
 		if (date > today) {
 			return fail(400, { ...state, error: 'A diary cannot look into the future.' });
 		}

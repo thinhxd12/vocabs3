@@ -429,6 +429,7 @@
       class="flex min-h-0 flex-1 flex-col"
     >
       <input type="hidden" name="date" value={data.date} />
+      <input type="hidden" name="today" value={todayLocal} />
 
       <label for="diary-text" class="sr-only">Diary entry for {dateLabel}</label
       >

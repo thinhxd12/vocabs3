@@ -113,10 +113,9 @@
       : page.url.pathname.startsWith(href);
 
   const DEFAULT_WALLPAPER = {
-    url: "/images/AshoptonViaduct.jpg",
-    title:
-      "Ashopton Viaduct towards Derwent, Ladybower Reservoir, Derbyshire, England, UK",
-    place: "2022-11-29",
+    title: "Stunning Icelandic region of volcanoes, beaches, and glaciers.",
+    url: "/images/Icescape.jpg",
+    place: "Snæfellsnes peninsula, Iceland",
   };
 
   /** The wallpaper and its two-line credit, swapped by the corner buttons. */
@@ -127,6 +126,8 @@
   let nextSpotlight: string | null = null;
 
   const backgroundButton = `${glassButton} size-[18px] bg-white/15 text-[#11130f] hover:bg-white/30`;
+  // The dock sits on a dark glass bar, so its tiles need more white than the corner buttons.
+  const navButton = `${glassButton} size-[18px] bg-white/20 text-[#11130f] hover:bg-white/40`;
 
   async function shiftBackground() {
     if (shifting) return;
@@ -202,11 +203,7 @@
     title={link.label}
     aria-label={link.label}
     aria-current={isActive(link.href) ? "page" : undefined}
-    class="flex h-full w-[22px] shrink-0 items-center justify-center text-white opacity-50 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white {isActive(
-      link.href,
-    )
-      ? 'opacity-100'
-      : ''}"
+    class="{navButton} shrink-0 aria-[current=page]:bg-white/60"
   >
     <Icon class="size-[14px]" aria-hidden="true" />
   </a>
@@ -353,9 +350,9 @@
                   onclick={countdown.endAt ? stopCountdown : startCountdown}
                   title={countdownLabel}
                   aria-label={countdownLabel}
-                  class="flex h-full cursor-pointer shrink-0 items-center justify-center tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white {countdown.endAt
-                    ? 'min-w-[40px] rounded-[2px] bg-black px-[3px] text-[10px] leading-none font-normal text-white'
-                    : 'w-[22px] text-white opacity-50 hover:opacity-100'}"
+                  class="shrink-0 cursor-pointer tabular-nums transition-colors {countdown.endAt
+                    ? 'flex h-[18px] min-w-[40px] items-center justify-center rounded-[2px] bg-black px-[3px] text-[10px] leading-none font-normal text-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white'
+                    : navButton}"
                 >
                   {#if countdown.endAt}
                     <span aria-hidden="true">{countdownClock}</span>
@@ -378,7 +375,7 @@
                   type="submit"
                   title="Sign out"
                   aria-label="Sign out"
-                  class="flex h-full w-[22px] shrink-0 cursor-pointer items-center justify-center text-white opacity-50 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
+                  class="{navButton} shrink-0 cursor-pointer"
                 >
                   <MajesticonsUnlockOpenLine
                     class="size-[14px]"
@@ -392,7 +389,7 @@
           <!-- Total FSRS words, the old dock's two-line readout. A readout, not a link. -->
           <div
             title="{data.totalWords} FSRS words"
-            class="flex px-[2px] rounded-[2px] shrink-0 flex-col overflow-hidden border border-white/10 bg-black/80 font-tupa font-semibold text-white"
+            class="flex px-[2px] rounded-[2px] shrink-0 flex-col overflow-hidden bg-black/80 font-tupa font-semibold text-white"
           >
             <span class="sr-only">{data.totalWords} FSRS words</span>
             <span

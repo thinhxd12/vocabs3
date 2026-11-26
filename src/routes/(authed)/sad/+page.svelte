@@ -2,6 +2,7 @@
   import { enhance } from "$app/forms";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
+  import { onMount } from "svelte";
   import IconPlus from "~icons/ph/plus";
   import IconSmileySad from "~icons/ph/smiley-sad";
   import IconTrash from "~icons/ph/trash";
@@ -11,6 +12,39 @@
   let { data, form }: PageProps = $props();
 
   const PAGE_SIZE = 15;
+
+  function localStamp(createdAt: string): { date: string; time: string } {
+    const at = new Date(createdAt);
+    if (Number.isNaN(at.getTime())) return { date: "", time: "" };
+
+    const parts = new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).formatToParts(at);
+    const part = (type: string) =>
+      parts.find((p) => p.type === type)?.value ?? "";
+
+    return {
+      date: `${part("year")}-${part("month")}-${part("day")}`,
+      time: `${part("hour")}:${part("minute")} ${part("dayPeriod")}`,
+    };
+  }
+
+  // The server can only render a UTC fallback; replace it after hydration.
+  let localTime = $state(false);
+  onMount(() => {
+    localTime = true;
+  });
+  const rows = $derived(
+    localTime
+      ? data.rows.map((row) => ({ ...row, ...localStamp(row.created_at) }))
+      : data.rows,
+  );
+
   const errorMsg = $derived(form?.error ?? "");
   const shown = $derived(
     data.total === 0
@@ -89,7 +123,7 @@
       </div>
 
       <ol class="no-scrollbar min-h-0 flex-1 overflow-y-auto">
-        {#each data.rows as row (row.created_at)}
+        {#each rows as row (row.created_at)}
           <li
             class="grid grid-cols-[minmax(0,1fr)_auto_28px] items-center gap-2 border-b border-white/8 px-3 py-[3px] transition-colors hover:bg-white/4 last:border-b-0"
           >
