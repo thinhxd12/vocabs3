@@ -291,7 +291,7 @@
 
     {#if !isLogin}
       <div
-        class="dark shrink-0 border-t border-white/10 mx-auto w-full max-w-[382px]"
+        class="shrink-0 border-t border-white/10 mx-auto w-full max-w-[382px]"
       >
         <nav
           aria-label="Main"
@@ -337,7 +337,7 @@
             {/if}
           </div>
 
-          <div class="flex min-w-0 flex-1 flex-col">
+          <div class="bg-black/15 backdrop-blur-[3px] flex min-w-0 flex-1 flex-col">
             <div
               class="flex min-h-0 flex-1 items-center justify-center gap-[2px]"
             >
@@ -389,7 +389,7 @@
           <!-- Total FSRS words, the old dock's two-line readout. A readout, not a link. -->
           <div
             title="{data.totalWords} FSRS words"
-            class="flex px-[2px] rounded-[2px] shrink-0 flex-col overflow-hidden bg-black/80 font-tupa font-semibold text-white"
+            class="flex px-[2px] shrink-0 flex-col overflow-hidden bg-black font-tupa font-semibold text-white"
           >
             <span class="sr-only">{data.totalWords} FSRS words</span>
             <span
@@ -412,7 +412,7 @@
 
           <!-- Sunrise tile: grey at rest, coloured from the left as /fsrs advances. -->
           <div
-            class="relative h-full w-[90px] shrink-0 overflow-hidden border-l border-white/10 bg-slate-900"
+            class="relative h-full w-[90px] shrink-0 overflow-hidden"
           >
             {#if isFsrs}
               <img
