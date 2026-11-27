@@ -42,7 +42,26 @@ function toHighlight(row: HighlightRow): Highlight {
 	};
 }
 
-const lowestRemainingId = sql<string>`(select ${highlights.id} from ${highlights} order by ${highlights.id} asc limit 1)`;
+export async function deleteHighlight(id: string): Promise<void> {
+	requireUuid(id);
+	// Land on the highlight just before the deleted one; the first remaining is the fallback when it was the oldest.
+	const previousRemainingId = sql<string | null>`coalesce(
+		(select ${highlights.id} from ${highlights} where ${highlights.id} < ${id} order by ${highlights.id} desc limit 1),
+		(select ${highlights.id} from ${highlights} order by ${highlights.id} asc limit 1)
+	)`;
+	// neon-http has no interactive transaction; a batch runs both statements in one Neon transaction.
+	await db.batch([
+		db.delete(highlights).where(eq(highlights.id, id)),
+		db
+			.insert(dashboard)
+			.values({ user: USER, currentHighlightId: previousRemainingId })
+			.onConflictDoUpdate({
+				target: dashboard.user,
+				set: { currentHighlightId: previousRemainingId },
+				where: eq(dashboard.currentHighlightId, id)
+			})
+	]);
+}
 
 export async function getHighlightById(id: string): Promise<Highlight | null> {
 	requireUuid(id);
@@ -187,18 +206,3 @@ export async function setNote(id: string, note: string): Promise<void> {
 	await db.update(highlights).set({ note }).where(eq(highlights.id, id));
 }
 
-export async function deleteHighlight(id: string): Promise<void> {
-	requireUuid(id);
-	// neon-http has no interactive transaction; a batch runs both statements in one Neon transaction.
-	await db.batch([
-		db.delete(highlights).where(eq(highlights.id, id)),
-		db
-			.insert(dashboard)
-			.values({ user: USER, currentHighlightId: lowestRemainingId })
-			.onConflictDoUpdate({
-				target: dashboard.user,
-				set: { currentHighlightId: lowestRemainingId },
-				where: eq(dashboard.currentHighlightId, id)
-			})
-	]);
-}
