@@ -110,9 +110,11 @@ async function recordCompletion(batchId: string, localDate: string) {
 		.from(progress)
 		.where(and(eq(progress.startDate, cycleStart), eq(progress.endDate, endDate)))
 		.limit(1);
-	if (existing) return;
-
-	await db.insert(progress).values({ id: uuidv7(), index: 0, startDate: cycleStart, endDate });
+	if (!existing) {
+		await db.insert(progress).values({ id: uuidv7(), index: 0, startDate: cycleStart, endDate });
+	}
+	// Banked: clear the tally; also runs on a retry that already has the progress row.
+	await db.delete(fsrsCompletions);
 }
 
 export const load: PageServerLoad = async () => {

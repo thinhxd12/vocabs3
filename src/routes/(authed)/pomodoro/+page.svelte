@@ -38,6 +38,7 @@
     longbreak: number;
     intervals: number;
     muted: boolean;
+    screenAwake: boolean;
   }
 
   const DEFAULT_SETTINGS: TimerSettings = {
@@ -46,6 +47,7 @@
     longbreak: 15,
     intervals: 10,
     muted: false,
+    screenAwake: false,
   };
 
   const LABELS: Record<Mode, string> = {
@@ -103,10 +105,12 @@
   let loadingData = $state(false);
   let page = $state(1);
 
-  let wakeOn = $state(false);
+  let wakeOn = $state(settings.screenAwake ?? false);
   let wakeSupported = $state(false);
   let wakeError = $state("");
   let wakeLock: WakeLockSentinel | null = null;
+  let wakeToken = 0;
+  let wakeDestroyed = false;
 
   const rows = $derived(data.rows);
   const perPage = 12;
@@ -182,6 +186,7 @@
     body.set("longbreak", String(value.longbreak));
     body.set("intervals", String(value.intervals));
     body.set("muted", String(value.muted));
+    body.set("screenAwake", String(wakeOn));
     try {
       await fetch("?/saveSettings", {
         method: "POST",
@@ -241,11 +246,16 @@
   }
 
   async function acquireWakeLock() {
+    const token = ++wakeToken;
     try {
-      wakeLock = await navigator.wakeLock.request("screen");
-      wakeLock.addEventListener("release", () => (wakeLock = null));
+      const lock = await navigator.wakeLock.request("screen");
+      if (wakeDestroyed || !wakeOn || token !== wakeToken) {
+        void lock.release().catch(() => {});
+        return;
+      }
+      wakeLock = lock;
+      lock.addEventListener("release", () => (wakeLock = null));
     } catch {
-      wakeOn = false;
       wakeError = "This browser refused the screen wake lock.";
     }
   }
@@ -280,6 +290,7 @@
 
   onMount(() => {
     wakeSupported = "wakeLock" in navigator;
+    if (wakeOn === true && wakeSupported) void acquireWakeLock();
     today = localDateKey();
 
     const stopHandler = setPomodoroCompletionHandler((completed, minutes) => {
@@ -293,6 +304,7 @@
 
     return () => {
       stopHandler();
+      wakeDestroyed = true;
       void wakeLock?.release().catch(() => {});
     };
   });
@@ -314,11 +326,13 @@
     );
   });
 
-  let lastSaved = untrack(() => JSON.stringify(settings));
+  let lastSaved = untrack(() =>
+    JSON.stringify({ ...settings, screenAwake: wakeOn }),
+  );
   let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
   $effect(() => {
-    const snapshot = JSON.stringify(settings);
+    const snapshot = JSON.stringify({ ...settings, screenAwake: wakeOn });
     if (snapshot === lastSaved) return;
     lastSaved = snapshot;
     clearTimeout(saveTimer);

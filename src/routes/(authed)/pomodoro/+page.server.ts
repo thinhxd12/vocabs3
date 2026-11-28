@@ -12,6 +12,7 @@ type PomodoroSettings = {
 	longbreak: number;
 	intervals: number;
 	muted: boolean;
+	screenAwake: boolean;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -30,7 +31,14 @@ function parsePomodoroSettings(value: unknown): PomodoroSettings | null {
 	if (focus === null || shortbreak === null || longbreak === null || intervals === null) {
 		return null;
 	}
-	return { focus, shortbreak, longbreak, intervals, muted: value.muted === true };
+	return {
+		focus,
+		shortbreak,
+		longbreak,
+		intervals,
+		muted: value.muted === true,
+		screenAwake: value.screenAwake === true
+	};
 }
 
 export const load: PageServerLoad = async () => {
@@ -94,7 +102,8 @@ export const actions = {
 			shortbreak,
 			longbreak,
 			intervals,
-			muted: form.get('muted') === 'true'
+			muted: form.get('muted') === 'true',
+			screenAwake: form.get('screenAwake') === 'true'
 		};
 		await db
 			.insert(dashboard)

@@ -15,16 +15,18 @@ export const load: LayoutLoad = async ({ fetch, url, depends }) => {
 	const now = new Date();
 	const weekday = WEEKDAYS[now.getDay()] ?? '??';
 	const today = localDate(now);
-	if (url.pathname === '/login') return { completedBatches: 0, totalWords: 0, weekday, today };
+	if (url.pathname === '/login')
+		return { completedBatches: 0, totalWords: 0, weekday, today, cycleComplete: false };
 
 	const endpoint = new URL('/api/fsrs-completions', url);
 	endpoint.searchParams.set('date', today);
 	const response = await fetch(endpoint);
 	const body = response.ok
-		? ((await response.json()) as { completedBatches?: unknown; totalWords?: unknown })
+		? ((await response.json()) as { completedBatches?: unknown; totalWords?: unknown; cycleComplete?: unknown })
 		: null;
 	const completedBatches = typeof body?.completedBatches === 'number' ? body.completedBatches : 0;
 	const totalWords = typeof body?.totalWords === 'number' ? body.totalWords : 0;
+	const cycleComplete = body?.cycleComplete === true;
 
-	return { completedBatches, totalWords, weekday, today };
+	return { completedBatches, totalWords, weekday, today, cycleComplete };
 };

@@ -8,6 +8,13 @@
       "when": 1795240759413,
       "tag": "0000_flippant_wraith",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795827229281,
+      "tag": "0001_dictionary_mean_jsonb",
+      "breakpoints": true
     }
   ]
 }

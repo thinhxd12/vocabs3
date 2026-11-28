@@ -1533,6 +1533,7 @@
     font-size: 11px;
     line-height: 1.4;
     color: #4f4f4d;
+    font-weight: 500;
   }
 
   .book-description {

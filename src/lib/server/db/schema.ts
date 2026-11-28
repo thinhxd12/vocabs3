@@ -1,4 +1,5 @@
-import { pgTable, integer, date, text, uuid, jsonb, timestamp, bigint, bigserial, doublePrecision, index } from 'drizzle-orm/pg-core';
+import { pgTable, integer, date, text, uuid, jsonb, timestamp, bigint, doublePrecision } from 'drizzle-orm/pg-core';
+import type { WikiTranslationType } from '#lib/translation.ts';
 
 export const pomodoro = pgTable('pomodoro', {
 	date: date('date').primaryKey(),
@@ -12,10 +13,8 @@ export const dashboard = pgTable('dashboard', {
 	progress: jsonb('progress'),
 	currentLocationId: uuid('currentLocationId'),
 	currentForecastModel: text('currentForecastModel'),
-	fsrsparams: jsonb('fsrsparams'),
 	pomodoroSettings: jsonb('pomodoroSettings'),
-	fsrsWordBatchSize: integer('fsrsWordBatchSize').default(9),
-	words: jsonb('words')
+	fsrsWordBatchSize: integer('fsrsWordBatchSize').default(9)
 });
 
 export const diary = pgTable('diary', {
@@ -72,15 +71,10 @@ export const fsrs = pgTable('fsrs', {
 });
 
 export const dictionary = pgTable('dictionary', {
-	id: bigserial('id', { mode: 'number' }).primaryKey(),
-	word: text('word').notNull(),
-	definition: text('definition').notNull(),
-	pos: text('pos'),
-	subPos: text('sub_pos'),
-	example: text('example'),
-	source: text('source'),
-	links: text('links')
-}, (t) => [index('dictionary_word_idx').on(t.word)]);
+	word: text('word').primaryKey(),
+	pro: text('pro'),
+	mean: jsonb('mean').notNull().$type<WikiTranslationType[] | string>()
+});
 
 export type DictionaryRow = typeof dictionary.$inferSelect;
 export type DictionaryInsert = typeof dictionary.$inferInsert;

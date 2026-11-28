@@ -97,8 +97,13 @@
     String(data.totalWords % 100).padStart(2, "0"),
   ]);
   const batchGoal = 18; // Matches the completion threshold in fsrs/+page.server.ts.
+  const batchLabel = $derived(
+    data.cycleComplete ? "D" : String(data.completedBatches),
+  );
   const batchProgress = $derived(
-    Math.min(100, (data.completedBatches / batchGoal) * 100),
+    data.cycleComplete
+      ? 100
+      : Math.min(100, (data.completedBatches / batchGoal) * 100),
   );
   const reviewPercent = $derived(
     reviewProgress.total === 0
@@ -299,14 +304,16 @@
         >
           <div
             role="status"
-            title={`${data.completedBatches} FSRS batches completed today`}
+            title={data.cycleComplete
+              ? "FSRS cycle completed today"
+              : `${data.completedBatches} FSRS batches completed today`}
             class="relative flex h-full shrink-0 flex-col items-center justify-center leading-none"
           >
             <span
-              class="dark relative block h-[28px] w-[16px] overflow-hidden text-[10px] font-semibold tabular-nums text-black"
+              class="relative block h-[28px] w-[16px] overflow-hidden text-[10px] font-semibold tabular-nums bg-black/30 text-white backdrop-blur-sm"
             >
               <span class="absolute inset-0 flex items-center justify-center">
-                {data.completedBatches}
+                {batchLabel}
               </span>
               <span
                 aria-hidden="true"
@@ -316,7 +323,7 @@
                 <span
                   class="absolute bottom-0 left-0 flex h-[28px] w-[16px] items-center justify-center text-white"
                 >
-                  {data.completedBatches}
+                  {batchLabel}
                 </span>
               </span>
             </span>
@@ -328,7 +335,9 @@
             {#if page.url.pathname !== "/login"}
               <a
                 href="/calendar"
-                aria-label={`View calendar, ${data.completedBatches} FSRS batches completed today, ${data.weekday}`}
+                aria-label={data.cycleComplete
+                  ? `View calendar, FSRS cycle completed today, ${data.weekday}`
+                  : `View calendar, ${data.completedBatches} FSRS batches completed today, ${data.weekday}`}
                 aria-current={page.url.pathname === "/calendar"
                   ? "page"
                   : undefined}
