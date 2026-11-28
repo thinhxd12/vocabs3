@@ -24,19 +24,19 @@
   let { data, form }: PageProps = $props();
 
   const panel =
-    "flex h-auto max-h-[calc(100dvh-2rem)] w-[382px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[2px] bg-white text-[#11130f] ring-1 ring-[#11130f]/15";
+    "flex h-auto max-h-[calc(100dvh-42px)] w-[382px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[2px] bg-white text-[#11130f] ring-1 ring-[#11130f]/15";
   const input =
-    "h-9 w-full min-w-0 rounded-[2px] bg-[#11130f]/5 px-2 text-xs text-[#11130f] ring-1 ring-[#5f665c]/70 outline-none placeholder:text-[#5f665c] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#2547ff]";
+    "h-[30px] w-full min-w-0 rounded-[2px] bg-[#11130f]/5 px-2 text-xs text-[#11130f] ring-1 ring-[#5f665c]/70 outline-none placeholder:text-[#5f665c] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#2547ff]";
   const label = "mb-1 block text-[10px] font-medium text-[#5f665c]";
   const primary =
-    'flex h-9 w-full items-center justify-center gap-1.5 rounded-[2px] bg-[#11130f] text-xs font-semibold text-white ring-1 ring-white/25 transition-colors hover:bg-[#2b2f28] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2547ff] disabled:cursor-not-allowed disabled:opacity-50';
+    'flex h-[30px] w-full items-center justify-center gap-1.5 rounded-[2px] bg-[#11130f] text-xs font-semibold text-white ring-1 ring-white/25 transition-colors hover:bg-[#2b2f28] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2547ff] disabled:cursor-not-allowed disabled:opacity-50';
   const topButton =
     "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-[2px] bg-white/10 px-2.5 text-[11px] font-semibold text-white ring-1 ring-white/25 transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
   const closeButton =
     "flex size-8 shrink-0 items-center justify-center rounded-[2px] text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white";
   const errorText = "mt-2 text-[10px] text-[#b42318]";
   const searchButton =
-    "flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-[2px] bg-[#11130f]/10 px-3 text-xs font-semibold text-[#11130f] ring-1 ring-[#5f665c]/70 transition-colors hover:bg-[#11130f]/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2547ff] disabled:cursor-not-allowed disabled:opacity-50";
+    "flex h-[30px] shrink-0 items-center justify-center gap-1.5 rounded-[2px] bg-[#11130f]/10 px-3 text-xs font-semibold text-[#11130f] ring-1 ring-[#5f665c]/70 transition-colors hover:bg-[#11130f]/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2547ff] disabled:cursor-not-allowed disabled:opacity-50";
   const chip = `${glassButton} size-[18px] bg-white/15 text-[#11130f] hover:bg-white/30`;
 
   let queue = $state<Word[]>([]);
@@ -83,6 +83,15 @@
 
   const duplicateDate = $derived(
     duplicateCreatedAt ? localDateString(duplicateCreatedAt) : "",
+  );
+
+  const canAddWord = $derived(
+    !adding &&
+      !searching &&
+      Boolean(newWord.trim()) &&
+      searched &&
+      searchResults.length > 0 &&
+      duplicateCreatedAt === null,
   );
 
   function formatCreatedAt(value: string) {
@@ -551,7 +560,7 @@
       use:enhance={submitAddWord}
       class="flex min-h-0 flex-1 flex-col"
     >
-      <div class="shrink-0 p-4 pb-3">
+      <div class="shrink-0 p-[6px]">
         <label for="fsrs-word" class={label}>Word</label>
         <div class="flex gap-2">
           <input
@@ -608,7 +617,7 @@
               <div>
                 {#each searchResults as item (item.partOfSpeech)}
                   <div class="px-2.5 py-2">
-                    <h3 class="text-[10px] font-semibold italic text-[#5f665c]">
+                    <h3 class="text-[12px] indent-1 capitalize font-bold italic text-black">
                       {item.partOfSpeech}
                     </h3>
                     {#each item.translation as line, i (i)}
@@ -634,11 +643,11 @@
         </div>
       {/if}
 
-      <div class="shrink-0 border-t border-[#11130f]/10 px-4 py-3">
+      <div class="shrink-0 border-t border-[#11130f]/10 p-[6px]">
         <button
           type="submit"
           class={primary}
-          disabled={adding || duplicateCreatedAt !== null}>Add word</button
+          disabled={!canAddWord}>Add word</button
         >
       </div>
     </form>

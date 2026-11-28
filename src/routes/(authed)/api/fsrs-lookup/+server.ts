@@ -1,3 +1,4 @@
+import { LOGIN_EMAIL } from '$app/env/private';
 import { json } from '@sveltejs/kit';
 import { desc, sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.ts';
@@ -22,7 +23,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	let translation = await lookupEnVn(word).catch((): WikiTranslationType[] => []);
 	if (translation.length === 0) {
-		translation = await googleTranslation(word).catch((): WikiTranslationType[] => []);
+		translation = await googleTranslation(word, LOGIN_EMAIL).catch((): WikiTranslationType[] => []);
 	}
 
 	return json({
